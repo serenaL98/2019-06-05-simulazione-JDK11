@@ -7,6 +7,7 @@ package it.polito.tdp.crimes;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.crimes.model.Distretto;
 import it.polito.tdp.crimes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,13 +26,13 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxAnno"
-    private ComboBox<?> boxAnno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxMese"
-    private ComboBox<?> boxMese; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGiorno"
-    private ComboBox<?> boxGiorno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxGiorno; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnCreaReteCittadina"
     private Button btnCreaReteCittadina; // Value injected by FXMLLoader
@@ -47,11 +48,66 @@ public class FXMLController {
 
     @FXML
     void doCreaReteCittadina(ActionEvent event) {
+    	
+    	txtResult.clear();
+    	
+    	txtResult.setText("Crea grafo...");
+    	
+    	Integer anno = this.boxAnno.getValue();
+    	
+    	if(anno == null) {
+    		txtResult.setText("Selezionare un anno.\n");
+    		return;
+    	}
+    	
+    	this.model.creaGrafo(anno);
+    	
+    	txtResult.appendText("\n\n#VERTICI: "+this.model.numeroVertici());
+    	txtResult.appendText("\n#ARCHI: "+this.model.numeroArchi());
 
+    	txtResult.appendText("\n\nPer ogni distretto i suoi adiacenti:\n");
+    	for(Distretto d: this.model.verticiGrafo()) {
+    		txtResult.appendText("\nPer il distretto "+d.getId()+":\n"+this.model.distrettiAdiacenti(d));
+    	}
+    	
+    	//this.boxMese.getItems().addAll(this.model.prendiMesi(anno));
+    	
+    	//Integer mese = this.boxMese.getValue();
+    	//non funziona bene
+    	//this.boxGiorno.getItems().addAll(this.model.prendiGiorni(anno, mese));
+    	//System.out.println(this.model.prendiGiorni(anno, mese));
+    	
     }
 
     @FXML
     void doSimula(ActionEvent event) {
+
+    	txtResult.clear();
+    	
+    	Integer anno = this.boxAnno.getValue();
+    	Integer mese = this.boxMese.getValue();
+    	Integer giorno = this.boxGiorno.getValue();
+    	
+    	this.boxMese.getItems().addAll(this.model.prendiMesi(anno));
+    	
+    	//non funziona bene
+    	this.boxGiorno.getItems().addAll(this.model.prendiGiorni(anno, mese));
+    	
+    	String N = this.txtN.getText();
+    	
+    	if(anno == null || mese == null || giorno == null) {
+    		txtResult.setText("Selezionare tutti i campi!\n");
+    		return;
+    	}
+
+    	try {
+    		int n = Integer.parseInt(N);
+    	}catch(NumberFormatException e) {
+    		txtResult.setText("Selezionare un numero intero da 1 a 10.\n");
+    		return;
+    	}
+    	
+    	//this.model.
 
     }
 
@@ -69,5 +125,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.boxAnno.getItems().addAll(this.model.elencoAnni());
     }
 }
